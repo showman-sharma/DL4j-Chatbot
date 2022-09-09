@@ -226,7 +226,7 @@ public class Main {
         int layerSize = 32;
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
 //                .seed(0)
-                .iterations(2500)
+                .iterations(2000)
                 .activation(Activation.RELU)
                 .weightInit(WeightInit.XAVIER)
                 .updater(new Adam())
@@ -304,7 +304,7 @@ public class Main {
         }
         System.out.println(reply2Code);
 
-        SetUp(); //Uncomment to train everything again
+//        SetUp(); //Uncomment to train everything again
 
         try {
             BasicConfigurator.configure();
@@ -312,45 +312,45 @@ public class Main {
 
             MultiLayerNetwork model = ModelSerializer.restoreMultiLayerNetwork(chatbot_model);
 
-//            String input_sentence;
-//            Scanner sc = new Scanner(System.in);
-//            INDArray input_vector;
-//            INDArray output;
+            String input_sentence;
+            Scanner sc = new Scanner(System.in);
+            INDArray input_vector;
+            INDArray output;
 
-//            System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-//            BufferedReader br = new BufferedReader(new FileReader(replies_path+"start_convo.txt"));
-//            String line;
-//            while ((line = br.readLine()) != null) {
-//                System.out.println("Handy:"+line);
-//            }
-//
-//            String reply;
-//            boolean convo = true;
-//            while (convo){
-//                System.out.print("User:");
-//                input_sentence = sc.nextLine();
-//
-//                input_vector = sentenceVector(input_sentence,word2Vec);
-////            normalizer.transform(input_vector);
-//
-//                long startTime = System.nanoTime();
-//                output = model.output(input_vector);
-//                long endTime = System.nanoTime();
-//                long duration = (endTime - startTime)/1000000;
-//
-//                reply = code2Reply[(int) Double.parseDouble(output.argMax().toString())];
-//
-//                System.out.println("***"+duration+" ms ***");
-//                br = new BufferedReader(new FileReader(replies_path+reply+".txt"));
-//                while ((line = br.readLine()) != null) {
-//                    System.out.println("Handy:"+line);
-//                }
-//                if(reply=="end_convo"){
-//                    convo=false;
-//                }
-//
-//
-//            }
+            System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+            BufferedReader br = new BufferedReader(new FileReader(replies_path+"start_convo.txt"));
+            String line;
+            while ((line = br.readLine()) != null) {
+                System.out.println("Handy:"+line);
+            }
+
+            String reply;
+            boolean convo = true;
+            while (convo){
+                System.out.print("User:");
+                input_sentence = sc.nextLine();
+
+                input_vector = sentenceVector(input_sentence,word2Vec);
+//            normalizer.transform(input_vector);
+
+                long startTime = System.nanoTime();
+                output = model.output(input_vector);
+                long endTime = System.nanoTime();
+                long duration = (endTime - startTime)/1000000;
+
+                reply = code2Reply[(int) Double.parseDouble(output.argMax().toString())];
+
+                System.out.println("***"+duration+" ms ***");
+                br = new BufferedReader(new FileReader(replies_path+reply+".txt"));
+                while ((line = br.readLine()) != null) {
+                    System.out.println("Handy:"+line);
+                }
+                if(reply=="end_convo"){
+                    convo=false;
+                }
+
+
+            }
 
         } catch (Exception e) {
             throw new RuntimeException(e);
