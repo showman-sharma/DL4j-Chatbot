@@ -455,3 +455,39 @@ how can I buy exo0,buy_request
 how can I buy exo1,buy_request
 how can I buy mark 1,buy_request
 how can I buy mark 2,buy_request
+"No, thank you",end_convo
+thank you,end_convo
+i am done,end_convo
+bye,end_convo
+finished,end_convo
+nothing needed,end_convo
+no,end_convo
+nothing,end_convo
+thanks,end_convo
+not required,end_convo
+close,end_convo
+end,end_convo
+that is all,end_convo
+that's all,end_convo
+no. Good bye,end_convo
+no. goodbye,end_convo
+not needed,end_convo
+no need,end_convo
+"No, thank you",end_convo
+thank you,end_convo
+i am done,end_convo
+bye,end_convo
+finished,end_convo
+nothing needed,end_convo
+no,end_convo
+nothing,end_convo
+thanks,end_convo
+not required,end_convo
+close,end_convo
+end,end_convo
+that is all,end_convo
+that's all,end_convo
+no. Good bye,end_convo
+no. goodbye,end_convo
+not needed,end_convo
+no need,end_convo

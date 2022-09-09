@@ -29,9 +29,6 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
-import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
-import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
-import org.nd4j.linalg.dataset.api.preprocessor.serializer.NormalizerSerializer;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.learning.config.Adam;
@@ -43,8 +40,11 @@ import java.util.*;
 
 public class Main {
     public static ArrayList<String> stopWords;
+    public static StanfordLemmatizer slem = new StanfordLemmatizer();
+
     public static int FEATURES_COUNT = 30;
     public static int CLASSES_COUNT = 7;
+    public static int NUM_CHATS = 445;
 
     public static Dictionary reply2Code = new Hashtable();
     public static String[] code2Reply = {"company_info",
@@ -60,6 +60,7 @@ public class Main {
     public static String vec_path = "D:\\Chatbot\\DL4J_Chatbot\\src\\main\\resources\\chatVecs.csv";
     public static String chatbot_model = "D:\\Chatbot\\DL4J_Chatbot\\src\\main\\resources\\chatbot_model";
 
+    public static String replies_path = "D:\\Chatbot\\DL4J_Chatbot\\src\\main\\resources\\bot_replies\\";
     public static Word2Vec trainingVec(String path) throws FileNotFoundException {
         SentenceIterator iter = new LineSentenceIterator(new File(path));
 //        SentenceIterator stopWords = new LineSentenceIterator((new File()));
@@ -68,7 +69,9 @@ public class Main {
         iter.setPreProcessor(new SentencePreProcessor() {
             @Override
             public String preProcess(String sentence) {
+                List<String> tokens = slem.lemmatize(sentence);
 
+                sentence = String.join(" ",tokens);
                 return sentence.toLowerCase();
             }
         });
@@ -105,18 +108,15 @@ public class Main {
         return vec;
     }
 
-    public static ArrayList tokenizeSentence(String sentence){
-        List<String> tokens = new ArrayList<>();
-        StringTokenizer tokenizer = new StringTokenizer(sentence.toLowerCase(), " ");
-        while (tokenizer.hasMoreElements()) {
-            tokens.add(tokenizer.nextToken());
-        }
-        return (ArrayList) tokens;
-    }
+//    public static ArrayList tokenizeSentence(String sentence){
+//        List<String> tokens = slem.lemmatize(sentence);
+//        return (ArrayList) tokens;
+//    }
 
     public static INDArray sentenceVector(String sentence, Word2Vec vec){
 //        System.out.println(sentence);
-        ArrayList words = tokenizeSentence(sentence);
+//        ArrayList words = tokenizeSentence(sentence);
+        List<String> words = slem.lemmatize(sentence);
 //        System.out.println(words);
         INDArray sentVect = Nd4j.zeros(1,FEATURES_COUNT);
         for(int i = 0;i< words.size();i++){
@@ -151,12 +151,21 @@ public class Main {
                 String out = tempArr[1];
                 INDArray sentVec = sentenceVector(sentence,vec);
                 int n = sentVec.shape()[1];
-                String[] data = new String[n+1];
-                for(int i=0;i<n;i++){
-                    data[i] = String.valueOf(sentVec.getDouble(i));
+                boolean check_ok = true;
+                for(int i = 0;i<n;i++){
+                    if(sentVec.getDouble(i)==0d){
+                        check_ok = false;
+                        break;
+                    }
                 }
-                data[n] = (String) reply2Code.get(out);
-                writer.writeNext(data);
+                if(check_ok){
+                    String[] data = new String[n+1];
+                    for(int i=0;i<n;i++){
+                        data[i] = String.valueOf(sentVec.getDouble(i));
+                    }
+                    data[n] = (String) reply2Code.get(out);
+                    writer.writeNext(data);
+                }
             }
             br.close();
         } catch(IOException ioe) {
@@ -173,7 +182,7 @@ public class Main {
 
 
             //we’ll iterate over the dataset
-            DataSetIterator iterator = new RecordReaderDataSetIterator(recordReader,428,FEATURES_COUNT,CLASSES_COUNT );
+            DataSetIterator iterator = new RecordReaderDataSetIterator(recordReader,NUM_CHATS,FEATURES_COUNT,CLASSES_COUNT );
             DataSet allData = iterator.next();
             allData.shuffle(0);
 
@@ -212,14 +221,14 @@ public class Main {
     private static MultiLayerNetwork chatbotNetwork(DataSet trainingData, DataSet testData) {
         System.out.println("\n\n\nModel Configuration");
 
-        int layerSize = 64;
+        int layerSize = 128;
         MultiLayerConfiguration configuration = new NeuralNetConfiguration.Builder()
 //                .seed(0)
-                .iterations(3000)
+                .iterations(1000)
                 .activation(Activation.RELU)
                 .weightInit(WeightInit.XAVIER)
                 .updater(new Adam())
-                .l2(0.0001)
+                .l2(0.001)
                 .list()
                 .layer(0, new DenseLayer.Builder().nIn(FEATURES_COUNT).nOut(layerSize).build())
                 .layer(1, new DenseLayer.Builder().nIn(layerSize).nOut(layerSize).build())
@@ -300,20 +309,39 @@ public class Main {
             BasicConfigurator.configure();
             Word2Vec word2Vec = WordVectorSerializer.readWord2VecModel("vec.txt");
 
-
-
             MultiLayerNetwork model = ModelSerializer.restoreMultiLayerNetwork(chatbot_model);
 
-//            NormalizerSerializer loader = NormalizerSerializer.getDefault();
-//            File normalsFile = new File(normalizer_path);
-//            DataNormalization normalizer = loader.restore(normalsFile);
-            String input_sentence = "Tell me about you company";
-            INDArray input_vector = sentenceVector(input_sentence,word2Vec);
-//            normalizer.transform(input_vector);
-            INDArray output = model.output(input_vector);
+            String input_sentence;
+            Scanner sc = new Scanner(System.in);
+            INDArray input_vector;
+            INDArray output;
 
-            System.out.println(output);
-            System.out.println(code2Reply[(int) Double.parseDouble(output.argMax().toString())]);
+            System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+            BufferedReader br = new BufferedReader(new FileReader(replies_path+"start_convo.txt"));
+            String line;
+            while ((line = br.readLine()) != null) {
+                System.out.println("Handy:"+line);
+            }
+
+            String reply;
+            boolean convo = true;
+            while (convo){
+                System.out.print("User:");
+                input_sentence = sc.nextLine();
+                input_vector = sentenceVector(input_sentence,word2Vec);
+//            normalizer.transform(input_vector);
+                output = model.output(input_vector);
+                reply = code2Reply[(int) Double.parseDouble(output.argMax().toString())];
+                br = new BufferedReader(new FileReader(replies_path+reply+".txt"));
+                while ((line = br.readLine()) != null) {
+                    System.out.println("Handy:"+line);
+                }
+                if(reply=="end_convo"){
+                    convo=false;
+                }
+
+
+            }
 
         } catch (Exception e) {
             throw new RuntimeException(e);
