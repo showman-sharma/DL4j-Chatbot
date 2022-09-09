@@ -1,0 +1,3 @@
+Here are our arm prosthesis solutions:
+MARK I: For arm amputees. Our simple and light weight model of arm prosthesis. Suitable for simple tasks.
+MARK II: For arm amputees. An advanced and dextrous arm. Involves softroboric for best grip and individual finger control.
