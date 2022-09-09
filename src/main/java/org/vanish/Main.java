@@ -235,8 +235,7 @@ public class Main {
                 .layer(0, new DenseLayer.Builder().nIn(FEATURES_COUNT).nOut(layerSize).build())
                 .layer(1, new DenseLayer.Builder().nIn(layerSize).nOut(layerSize).build())
                 .layer(2, new DenseLayer.Builder().nIn(layerSize).nOut(layerSize).build())
-                .layer(3, new DenseLayer.Builder().nIn(layerSize).nOut(layerSize).build())
-                .layer(4, new OutputLayer.Builder(
+                .layer(3, new OutputLayer.Builder(
                         LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD).activation(Activation.SOFTMAX)
                         .nIn(layerSize).nOut(CLASSES_COUNT).build())
                 .backprop(true).pretrain(false)
